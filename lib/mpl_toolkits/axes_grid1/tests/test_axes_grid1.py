@@ -807,3 +807,26 @@ def test_inset_axes_tight_bbox_with_no_renderer():
     bbox3 = locator(ax, None)
     assert bbox3 is not None
     assert locator.figure is ax.figure
+
+
+def test_zoomed_inset_axes_tight_bbox_with_no_renderer():
+    """Test that zoomed_inset_axes also works during tight bbox calculation with no renderer."""
+    fig, ax = plt.subplots(figsize=[4, 3])
+    ax.plot([0, 1], [0, 1])
+    
+    # Create zoomed inset axes - this should not fail
+    axins = zoomed_inset_axes(ax, zoom=2, loc='upper right')
+    
+    # Get the locator
+    locator = axins.get_axes_locator()
+    assert locator is not None
+    
+    # Initially, the locator should not have a figure set  
+    assert locator.figure is None
+    
+    # Simulate what happens during tight bbox adjustment - call with renderer=None
+    bbox = locator(ax, None)
+    
+    # After the call, the locator should have the figure set
+    assert locator.figure is ax.figure
+    assert bbox is not None
