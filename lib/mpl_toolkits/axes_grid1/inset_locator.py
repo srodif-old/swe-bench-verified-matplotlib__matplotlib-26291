@@ -70,6 +70,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
     def __call__(self, ax, renderer):
         self.axes = ax
+        self.figure = ax.figure
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
