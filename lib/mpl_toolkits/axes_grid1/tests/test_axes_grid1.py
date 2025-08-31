@@ -771,3 +771,39 @@ def test_anchored_locator_base_call():
 
 def test_grid_with_axes_class_not_overriding_axis():
     Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)
+
+
+def test_inset_axes_tight_bbox_with_no_renderer():
+    """Test that inset_axes works during tight bbox calculation with no renderer."""
+    # This test specifically exercises the case that was failing in the bug report
+    # when tight bbox adjustment calls locator(ax, None).
+    
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=[5.5, 2.8])
+    
+    # Create inset axes - this should not fail
+    axins = inset_axes(ax, width=1.3, height=0.9)
+    
+    # Get the locator
+    locator = axins.get_axes_locator()
+    assert locator is not None
+    
+    # Initially, the locator should not have a figure set
+    assert locator.figure is None
+    
+    # Simulate what happens during tight bbox adjustment - call with renderer=None
+    # This was the line that was failing before the fix
+    bbox = locator(ax, None)
+    
+    # After the call, the locator should have the figure set
+    assert locator.figure is ax.figure
+    assert bbox is not None
+    
+    # The locator should continue to work with explicit renderers too
+    renderer = fig.canvas.get_renderer()
+    bbox2 = locator(ax, renderer)
+    assert bbox2 is not None
+    
+    # Multiple calls should be fine
+    bbox3 = locator(ax, None)
+    assert bbox3 is not None
+    assert locator.figure is ax.figure
